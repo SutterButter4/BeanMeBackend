@@ -6,12 +6,13 @@ RUN apt-get -y update
 #Set the working directory
 WORKDIR /usr/src/app
 
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
 #copy all the files
 COPY . .
 
 #Install the dependencies
-
-RUN pip3 install -r requirements.txt
 
 #Expose the required port
 EXPOSE 80

@@ -2,14 +2,14 @@
 from mongoengine import (EmbeddedDocumentField,
                          ListField,
                          StringField,
-                         EmailField)
+                         EmailField,EmbeddedDocument)
 
 # flask packages
 from flask_bcrypt import generate_password_hash, check_password_hash
 
 from models.id import WithID
 
-class Notification(object):
+class Notification(EmbeddedDocument):
     description = StringField()
     groupID = StringField()
     taskID = StringField()
@@ -21,8 +21,8 @@ class Users(WithID):
     phone_num = StringField()
     email = EmailField(required=True, unique=True)
     password_hash = StringField(required=True, min_length=6, regex=None)
-    groups = ListField(EmbeddedDocumentField(StringField()))
-    notifications =ListField(EmbeddedDocumentField(Notification))
+    groups = ListField(StringField())
+    notifications = ListField(EmbeddedDocumentField(Notification))
 
     def generate_pw_hash(self):
         self.password_hash = generate_password_hash(self.password_hash).decode('utf-8')

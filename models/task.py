@@ -11,7 +11,7 @@ class Commitments(WithIDEmbedded):
     amount = IntField()
     date = ComplexDateTimeField()
 
-class Task(WithID):
+class Tasks(WithID):
 
     groupID = StringField()
     userID = StringField()

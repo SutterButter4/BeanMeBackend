@@ -9,6 +9,7 @@ from api.routes import create_routes
 
 # external packages
 import os
+from models.user import Users
 
 # default mongodb configuration
 default_config = {'MONGODB_SETTINGS': {
@@ -49,6 +50,17 @@ def get_flask_app(config: dict = None) -> app.Flask:
 
     # init jwt manager
     jwt = JWTManager(app=flask_app)
+
+    @jwt.user_identity_loader
+    def user_identity_lookup(user):
+        return user.id
+
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        identity = jwt_data["sub"]
+        return Users.query.filter_by(id=identity).one_or_none()
+
+
 
     return flask_app
 

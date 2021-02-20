@@ -14,10 +14,7 @@ from models.task import Tasks
 from api.error import unauthorized
 
 
-@jwt.user_lookup_loader
-def user_lookup_callback(_jwt_header, jwt_data):
-    identity = jwt_data["sub"]
-    return Users.query.filter_by(id=identity).one_or_none()
+
 
 #return the single user that called this method from the front end
 class getUser(Resource):
@@ -146,7 +143,7 @@ class schedule_task(Resource):
 
 
 
-class transfer():
+class transfer(Resource):
     @jwt_required
     def post(self):
         data = request.get_json()
@@ -158,21 +155,22 @@ class transfer():
         if current_user.id in group.users and data.get('TargetUser') in group.users:
             amount = data.get('Amount')
             group.update()
+        pass
 
 
-class taskName():
+class taskName(Resource):
     @jwt_required
     def post(self):
         pass
 
 
-class taskID():
+class taskID(Resource):
     @jwt_required
     def post(self):
         pass
 
 
-class taskCommit():
+class taskCommit(Resource):
     @jwt_required
     def post(self):
         pass
