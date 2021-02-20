@@ -25,3 +25,9 @@ def not_found_error(msg) -> Response:
     resp = jsonify({'result': output})
     resp.status_code = 404
     return resp
+
+def success() -> Response:
+    output = {"OK"}
+    resp = jsonify({'result': output})
+    resp.status_code = 201
+    return resp

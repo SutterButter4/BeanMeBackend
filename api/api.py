@@ -12,8 +12,9 @@ from models.group import Groups, GroupUser, ScheduledTask
 from models.task import Tasks
 
 
-from api.errors import not_found_error, unauthorized_error
+from api.errors import not_found_error, unauthorized_error, success
 
+import json
 
 class root(Resource):
     def get(self):
@@ -40,15 +41,25 @@ class getGroup(Resource):
         except:
             return not_found_error("group not found")
 
-        result = result.to_json()
-
+        result = json.loads(result.to_json())
         for guser in result['users']:
-            user = Users.objects.get(id=guser['userId'])
+            user = Users.objects.get(id=guser['userID'])
             guser.update({'name':user.name})
-        return result, 200
+        return success()
 
+    @jwt_required()
     def delete(self):
-        result = Groups.objects.get(id=id)
+        try:
+            id = request.json.get('groupId')
+            group = Groups.objects.get(id=id)
+            for users in group.users:
+                if current_user.id == users.id:
+                    group.delete()
+                    return success()
+            return unauthorized_error("Use Not In Group")
+        except:
+            return not_found_error("Group Not Found")
+
 
 class makeGroup(Resource):
     @jwt_required()
@@ -60,7 +71,7 @@ class makeGroup(Resource):
         group = Groups(name=groupName,users=[gu])
         group.save()
 
-        return "OK", 201
+        return success()
 
 # a user inviting another user to a certain group
 class getGroupTasks(Resource):
@@ -70,7 +81,7 @@ class getGroupTasks(Resource):
         if not result:
             return not_found_error("group not found")
         else:
-            return result, "OK", 201
+            return result, success()
 
 
 #a user inviting another to a group
@@ -156,7 +167,7 @@ class schedule_task(Resource):
 
         if not groupScheduledOn:
             Groups.update(add_to_set__scheduledTasks=[ScheduledTask(task_id, interval)])
-            return "OK", 201
+            return success()
         else:
             return "TASK ALREADY SCHEDULED", 400
 
@@ -209,6 +220,7 @@ class makeTask(Resource):
                      description=data.get("description"),
                      beanReward=data.get("beanReward"),
                      completeBy=data.get("completeBy"))
+
         task.save()
 
         return task.to_json()
