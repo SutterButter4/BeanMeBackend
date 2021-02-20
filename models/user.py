@@ -3,25 +3,49 @@ from mongoengine import (Document,
                          EmbeddedDocumentField,
                          ListField,
                          StringField,
-                         EmailField,EmbeddedDocument)
+                         EmailField,
+                         EmbeddedDocument,
+                         ObjectIdField,
+                         DateTimeField)
 
 # flask packages
 from flask_bcrypt import generate_password_hash, check_password_hash
 import mongoengine_goodjson as gj
+import re
 
 class Notification(gj.EmbeddedDocument):
     description = StringField()
-    groupID = StringField()
-    taskID = StringField()
+    type = StringField()
+    groupId = ObjectIdField()
+    taskId = ObjectIdField()
+    userId = ObjectIdField()
+    date = DateTimeField(default=datetime.utcnow)
+    viewed = BooleanField(default=false)
 
+class PhoneField(StringField):
+    """
+    Custom StringField to verify Phone numbers.
+    # Modification of http://regexlib.com/REDetails.aspx?regexp_id=61
+    #
+    # US Phone number that accept a dot, a space, a dash, a forward slash, between the numbers.
+    # Will Accept a 1 or 0 in front. Area Code not necessary
+    """
+    REGEX = re.compile(r"((\(\d{3}\)?)|(\d{3}))([-\s./]?)(\d{3})([-\s./]?)(\d{4})")
+
+    def validate(self, value):
+        # Overwrite StringField validate method to include regex phone number check.
+        if not PhoneField.REGEX.match(string=value):
+            self.error(f"ERROR: `{value}` Is An Invalid Phone Number.")
+        super(PhoneField, self).validate(value=value)
 
 class Users(gj.Document):
 
     name = StringField(db_field="name", required=True)
-    phone = StringField(db_field="phone", required=True, unique=True)
+    phone = PhoneField(db_field="phone", required=True, unique=True)
     password = StringField(db_field="password", required=True, min_length=6, regex=None)
-    groups = ListField(StringField(), db_field="groupIds")
+    groups = ListField(ObjectIdField(), db_field="groups")
     notifications = ListField(EmbeddedDocumentField(Notification), db_field="notifications")
+    invites = ListField(ObjectIdField(),db_field="invites")
 
     def generate_pw_hash(self):
         self.password = generate_password_hash(self.password).decode('utf-8')

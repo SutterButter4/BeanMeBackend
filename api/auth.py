@@ -23,7 +23,7 @@ class SignUpApi(Resource):
         try:
             post_user = Users(**data)
             post_user.save()
-            return redirect("/auth/login")
+            return redirect("/auth/login",code=307)
         except:
             return bad_request_error("User with these credentials already exists");
 

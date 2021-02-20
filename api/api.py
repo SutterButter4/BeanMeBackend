@@ -31,5 +31,27 @@ class getUser(Resource):
         return current_user.to_json()
 
 
+#return the single user that called this method from the front end
+class notifcations(Resource):
+    @jwt_required()
+    def post(self):
+        current_user.update("set__notications__viewed"=True)
+        return current_user.to_json()
 
 
+
+def notifcations(type="",userId=none,groupId=none,taskId=none):
+    if(string=="INVITE"):
+    
+    elif(string=="TASK_CREATED"):
+
+    elif(string=="TASK_FULFILLED"):
+
+    elif(string=="OUT_OF_BEANS"):
+
+    elif(string=="INCOMING_TRANSFER"):
+    
+    elif(string=="USER_JOINED"):
+        
+
+    

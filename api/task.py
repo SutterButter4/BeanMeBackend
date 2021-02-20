@@ -14,8 +14,8 @@ from models.group import Groups, GroupUser, ScheduledTask
 from models.task import Tasks
 
 
-from api.response import not_found_error, unauthorized_error, success
-
+from api.response import not_found_error, unauthorized_error, success,bad_request_error
+import datetime
 import json
 
 #add task to group
@@ -51,31 +51,7 @@ class schedule_task(Resource):
 
 
 
-class transfer(Resource):
-    @jwt_required()
-    def post(self):
-        data = request.get_json()
-        try:
-            group = Groups.objects.get(id=data.get('groupId'))
-        except:
-            return "GROUP NOT FOUND", 404
 
-
-        for user in group.users:
-            if(user.id == current_user.id):
-                guser = user
-            if(user.id == data.get('TargetUser').id):
-                tuser = user
-        beans = data.get('Amount')
-        if(guser and tuser):
-            if guser.beans>=beans:
-                guser.update(dec__beans=beans)
-                tuser.update(inc__beans=beans)
-                return "OK", 201
-            else:
-                return "INSUFFICIENT BALANCE", 400
-        else:
-            return "Cant find users", 404
 
 class makeTask(Resource):
     @jwt_required()
@@ -83,48 +59,89 @@ class makeTask(Resource):
 
         data = request.get_json()
 
-        groupId = data.get("groupId")
-
-        groupThisId = Groups.objects.get(id=groupId)
-        gu = 0
-        for groupUser in groupThisId.users:
-            if groupUser.userId == current_user.id:
-                gu = groupUser
-                break
-
-        if gu == 0:
-            return not_found_error("user not in group")
+        groupId = data.get("groupId")       
 
         try:
-            A=1
+            group = Groups.objects.get(id=groupId)
         except:
-            return not_found_error("user not in group")
+            return not_found_error("Group not found")
 
-        task = Tasks(groupId=groupId,
-                     description=data.get("description"),
-                     beanReward=data.get("beanReward"),
-                     completeBy=data.get("completeBy"))
+        if group.id in current_user.groups:
+            task = Tasks(groupId=group.id,
+            description=data.get("description"),
+            beanReward=int(data.get("beanReward")),
+            completeBy=datetime.utcnow,
+            creator=current_user.id,
+            assignee=current_user.id)
+            
+            try:
+                task.save()
+                #add scheduled task to group
+                st = ScheduledTask(taskId=task.id)
+                group.update(add_to_set__scheduledTasks=st)
+            
+                return success(task.to_json())
+            except Exception as e:
+                return bad_request_error(e)#"Failed to save task")
 
-        task.save()
+        else:
+            return unauthorized_error("User not in group")
+        
 
-        return json.loads(task.to_json())
+        
 
+class taskId(Resource):
+    @jwt_required()
+    def post(self):
+        id = request.json.get('taskId')
+        try:
+            task = Tasks.objects.get(id=id)
+            taskGroup = Groups.objects.get(id=task.groupId)
+        except:
+            return bad_request_error("Invalid Task")
 
-class taskID(Resource):
+        if(taskGroup.id not in current_user.groups):
+            return unauthorized_error("User is not in group of task")
+        else:
+            return task.to_json()
+
     @jwt_required()
     def delete(self):
         id = request.json.get('taskId')
-        task = Tasks.objects.get(id=id)
-        taskGroup = Groups.objects.get(id=task.groupId)
+        try:
+            task = Tasks.objects.get(id=id)
+            taskGroup = Groups.objects.get(id=task.groupId)
+        except:
+            return bad_request_error("Invalid Task")
 
-        for userGuide in taskGroup.users:
-            if userGuide.userId == current_user.id:
-                return task
-
-        return unauthorized_error("user is not in group of task")
+        if(taskGroup.id not in current_user.groups):
+            return unauthorized_error("User is not in group of task")
+        else:
+            taskGroup.update(pull__scheduledTasks__id=task.id)
+            task.delete()
+            return success()
 
 
 class taskCommit(Resource):
     @jwt_required()
     def post(self):
-        pass
+        d = request.json
+        taskId = d.get('taskId')
+        amount = d.get('Amount')
+        try:
+            task = Tasks.objects.get(id=taskId)
+            taskGroup = Groups.objects.get(id=task.groupId)
+        except:
+            return bad_request_error("Invalid Task")
+        
+        for user in taskGroup.users:
+            if current_user.id == user.id:
+                if(user.beans>=amount):
+                    c = Commitments(amount=amount,date=datatime.now(),userId=user.id)
+                    task.update(add_to_set__commitments=c)
+                    user.update(dec__beans=amount)
+                    return task.to_json(), success()
+                else:
+                    return bad_request_error("Not Enough Beans")
+        
+        return bad_request_error("User Not In Task Group")
