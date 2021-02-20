@@ -4,20 +4,21 @@ from mongoengine import (Document,
                          ListField,
                          StringField,
                          IntField,
-                         ComplexDateTimeField, BooleanField)
+                         BooleanField)
+import mongoengine_goodjson as gj
 
 
-class Commitments(EmbeddedDocument):
-    amount = IntField()
-    date = ComplexDateTimeField()
+class Commitments(gj.EmbeddedDocument):
+    amount = IntField(db_field="amountPaid", required=True)
+    date = IntField(db_field="date", required=True)
 
-class Tasks(Document):
+class Tasks(gj.Document):
 
-    groupID = StringField()
-    userID = StringField()
-    description = StringField()
-    beanReward = IntField()
-    completeBy = ComplexDateTimeField()
-    completed = BooleanField()
-    commitments = ListField(EmbeddedDocumentField(Commitments))
+    groupId = StringField(db_field="groupId", required=False)
+    userId = StringField(db_field="userId", required=False)
+    description = StringField(db_field="description", required=True)
+    beanReward = IntField(db_field="beanReward", required=True)
+    completeBy = IntField(db_field="completeBy", required=True)
+    completed = BooleanField(db_field="completed", required=False)
+    commitments = ListField(EmbeddedDocumentField(Commitments), db_field="commitments", required=False)
 

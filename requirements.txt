@@ -6,3 +6,4 @@ flask-mongoengine
 Flask-RESTful
 Flask-WTF
 dnspython
+mongoengine_goodjson

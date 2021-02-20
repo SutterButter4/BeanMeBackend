@@ -7,21 +7,21 @@ from mongoengine import (Document,
 
 # flask packages
 from flask_bcrypt import generate_password_hash, check_password_hash
+import mongoengine_goodjson as gj
 
-class Notification(EmbeddedDocument):
+class Notification(gj.EmbeddedDocument):
     description = StringField()
     groupID = StringField()
     taskID = StringField()
 
 
-class Users(Document):
+class Users(gj.Document):
 
-    name = StringField(db_field="name", required=True, unique=True)
+    name = StringField(db_field="name", required=True)
     phone = StringField(db_field="phone", required=True, unique=True)
-    email = EmailField
     password = StringField(db_field="password", required=True, min_length=6, regex=None)
-    groups = ListField(StringField())
-    notifications = ListField(EmbeddedDocumentField(Notification))
+    groups = ListField(StringField(), db_field="groupIds")
+    notifications = ListField(EmbeddedDocumentField(Notification), db_field="notifications")
 
     def generate_pw_hash(self):
         self.password = generate_password_hash(self.password).decode('utf-8')

@@ -3,24 +3,26 @@ from mongoengine import (Document,
                          EmbeddedDocumentField,
                          ListField,
                          StringField,
-                         IntField)
+                         IntField,
+                         ObjectIdField)
+import mongoengine_goodjson as gj
 
 
-class ScheduledTask(EmbeddedDocument):
+class ScheduledTask(gj.EmbeddedDocument):
 
-    taskId = StringField(db_field="taskID", required=True)
+    taskId = ObjectIdField(db_field="taskID", required=True, primary_key=True)
     interval = IntField(db_field="timeInMS", required=True)
 
-class GroupUser(EmbeddedDocument):
+class GroupUser(gj.EmbeddedDocument):
 
-    userId = StringField(db_field="userID", required=True)
+    userId = ObjectIdField(db_field="userID", required=True)
     beans = IntField(db_field="numBeans", required=True)
 
 
-class Groups(Document):
+class Groups(gj.Document):
 
     name = StringField(db_field="groupName", required=True)
-    users = ListField(EmbeddedDocumentField(GroupUser), db_field="userList", required=True)
-    scheduledTasks = ListField(StringField(), db_field="scheduledTasks", required=True)
-    invitedUsers = ListField(StringField(db_field="invitedUsers", required=True))
+    users = ListField(EmbeddedDocumentField(GroupUser), db_field="users", required=True)
+    scheduledTasks = ListField(ObjectIdField(), db_field="scheduledTasks")
+    invitedUsers = ListField(StringField(db_field="invitedUsers"))
 

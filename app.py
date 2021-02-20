@@ -9,6 +9,7 @@ from api.routes import create_routes
 
 # external packages
 import os
+import sys
 from models.user import Users
 
 # default mongodb configuration
@@ -53,14 +54,12 @@ def get_flask_app(config: dict = None) -> app.Flask:
 
     @jwt.user_identity_loader
     def user_identity_lookup(user):
-        return user.id
+        return user
 
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data["sub"]
-        return Users.query.filter_by(id=identity).one_or_none()
-
-
+        return Users.objects.get(id=identity)
 
     return flask_app
 
@@ -69,5 +68,8 @@ def get_flask_app(config: dict = None) -> app.Flask:
 
 if __name__ == '__main__':
     # Main entry point when run in stand-alone mode.
+    print("v5")
+
     app = get_flask_app()
     app.run(debug=True, port=80, host="0.0.0.0")
+
