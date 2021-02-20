@@ -70,4 +70,4 @@ def get_flask_app(config: dict = None) -> app.Flask:
 if __name__ == '__main__':
     # Main entry point when run in stand-alone mode.
     app = get_flask_app()
-    app.run(debug=True)
+    app.run(debug=True, port=80, host="0.0.0.0")

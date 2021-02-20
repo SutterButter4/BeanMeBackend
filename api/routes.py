@@ -12,9 +12,6 @@ def create_routes(api: Api):
     api.add_resource(LoginApi, '/auth/login/')
 
     api.add_resource(getUser, '/getUser')
-
-
-
     #Groups
 
     api.add_resource(groupsName, '/groups')
