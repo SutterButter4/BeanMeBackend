@@ -14,6 +14,11 @@ from models.task import Tasks
 from api.error import unauthorized
 
 
+class hello(Resource):
+    @jwt_required
+    def post(self):
+        return "Hi"
+
 
 
 #return the single user that called this method from the front end

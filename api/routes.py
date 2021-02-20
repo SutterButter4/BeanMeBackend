@@ -3,10 +3,14 @@ from flask_restful import Api
 
 # project resources
 from api.auth import SignUpApi, LoginApi
-from api.api import getUser, getGroupTasks,groupsName,groupsID,groupInvite,acceptInvite,schedule_task,transfer,taskName,taskID,taskCommit
+from api.api import getUser, getGroupTasks, groupsName, groupsID, groupInvite, acceptInvite, schedule_task, transfer, \
+    taskName, taskID, taskCommit, hello
 
 
 def create_routes(api: Api):
+    api.add_resource(hello, '/hello')
+
+
     #Auth
     api.add_resource(SignUpApi, '/auth/signup/')
     api.add_resource(LoginApi, '/auth/login/')
