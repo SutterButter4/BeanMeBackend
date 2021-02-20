@@ -1,9 +1,12 @@
 from flask import Flask
-from flask_login import LoginManager
+from flask import jsonify
+
+# from flask_login import LoginManager
+# import pymongo
 
 app = Flask(__name__)
-login_manager = LoginManager()
-login_manager.init_app(app)
+# login_manager = LoginManager()
+# login_manager.init_app(app)
 
 # @login_manager.user_loader
 # def load_user(user_id):
@@ -33,8 +36,33 @@ login_manager.init_app(app)
 #     return flask.render_template('login.html', form=form)
 
 @app.route('/')
-def hello_world():
-    return 'Hello World!'
+def root():
+    resp = jsonify(success=True)
+    resp.status_code = 200
+    return resp
+
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, port=80, host="0.0.0.0")
+
+@app.route('/users')
+def user():
+    return 'users'
+
+@app.route('/users/sigin')
+def signin():
+    return 'users/signin'
+
+#
+# #accessing stuff from mongodb
+# DATABASE_NAME = ""
+# COLLECTION_NAME = ""
+# client = pymongo.MongoClient("mongodb+srv://admin:TvUPRBOAGTn6lBBL@cluster0.fv5vo.mongodb.net/beanme?retryWrites=true&w=majority")
+# #database name
+# db = client[DATABASE_NAME]
+#
+# #collection name
+# coll = db[COLLECTION_NAME]
+#
+
+
