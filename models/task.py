@@ -1,17 +1,17 @@
-from mongoengine import (EmbeddedDocumentField,
+from mongoengine import (Document,
+                         EmbeddedDocument,
+                         EmbeddedDocumentField,
                          ListField,
                          StringField,
                          IntField,
                          ComplexDateTimeField, BooleanField)
 
-from models.id import WithID, WithIDEmbedded
 
-
-class Commitments(WithIDEmbedded):
+class Commitments(EmbeddedDocument):
     amount = IntField()
     date = ComplexDateTimeField()
 
-class Tasks(WithID):
+class Tasks(Document):
 
     groupID = StringField()
     userID = StringField()

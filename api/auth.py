@@ -35,7 +35,7 @@ class LoginApi(Resource):
         :return: JSON object
         """
         data = request.get_json()
-        user = Users.objects.get(email=data.get('email'))
+        user = Users.objects.get(name=data.get('name'))
         auth_success = user.check_pw_hash(data.get('password'))
         if not auth_success:
             return unauthorized()

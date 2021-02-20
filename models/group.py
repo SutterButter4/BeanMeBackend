@@ -1,10 +1,9 @@
-from mongoengine import (EmbeddedDocument,
+from mongoengine import (Document,
+                         EmbeddedDocument,
                          EmbeddedDocumentField,
                          ListField,
                          StringField,
                          IntField)
-
-from models.id import WithID
 
 
 class ScheduledTask(EmbeddedDocument):
@@ -18,7 +17,7 @@ class GroupUser(EmbeddedDocument):
     beans = IntField(db_field="numBeans", required=True)
 
 
-class Groups(WithID):
+class Groups(Document):
 
     name = StringField(db_field="groupName", required=True)
     users = ListField(EmbeddedDocumentField(GroupUser), db_field="userList", required=True)
