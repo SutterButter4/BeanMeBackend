@@ -1,4 +1,6 @@
 # flask packages
+import json
+
 import jwt
 from flask import Response, request, jsonify
 from flask_restful import Resource
@@ -207,12 +209,18 @@ class makeTask(Resource):
 
         groupId = data.get("groupId")
 
-        Groups \
-            .objects(id=groupId) \
-            .get\
-            .objects(userID=current_user.id).get()
+        groupThisId = Groups.objects.get(id=groupId)
+        gu = 0
+        for groupUser in groupThisId.users:
+            if groupUser.userId == current_user.id:
+                gu = groupUser
+                break
+
+        if gu == 0:
+            return not_found_error("user not in group")
+
         try:
-            a=1
+            A=1
         except:
             return not_found_error("user not in group")
 
@@ -223,13 +231,21 @@ class makeTask(Resource):
 
         task.save()
 
-        return task.to_json()
+        return json.loads(task.to_json())
 
 
 class taskID(Resource):
     @jwt_required()
-    def post(self):
-        pass
+    def delete(self, id):
+
+        task = Tasks.objects.get(id=id)
+        taskGroup = Groups.objects.get(id=task.groupId)
+
+        for userGuide in taskGroup.users:
+            if userGuide.userId == current_user.id:
+                return task
+
+        return unauthorized_error("user is not in group of task")
 
 
 class taskCommit(Resource):
