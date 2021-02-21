@@ -40,18 +40,34 @@ class notifcations(Resource):
 
 
 
-def notifcations(type="",userId=none,groupId=none,taskId=none):
+def notifcations(type="",userId=none,groupId=none,taskId=none,amount=0):
+    if(userId):
+        try:
+            username = Users.objects.get(id:userId)
+        except:
+            return 0
+    if(groupId):
+        try:
+            username = Users.objects.get(id:userId)
+        except:
+            return 0
+    if(taskId):
+        try:
+            username = Users.objects.get(id:userId)
+        except:
+            return 0
     if(string=="INVITE"):
-    
+        d = f"You've been invited to join {group_name}"
     elif(string=="TASK_CREATED"):
-
+        d = f"{username_of_creator} wants {bean_reward} for {task_description}"
     elif(string=="TASK_FULFILLED"):
-
+        d = f"{group_name} has found {bean_reward} beans for {task_description}"
     elif(string=="OUT_OF_BEANS"):
-
+        d = f"{username} is out of beans"
     elif(string=="INCOMING_TRANSFER"):
-    
+        d = f"{username} has given you {amonut} beans"
     elif(string=="USER_JOINED"):
-        
+        d = f"{username} has joined {group name}"
 
+    return
     
