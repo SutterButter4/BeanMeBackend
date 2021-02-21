@@ -1,15 +1,14 @@
 # flask packages
+# external packages
+import os
+
 from flask import Flask, app
-from flask_restful import Api
-from flask_mongoengine import MongoEngine
 from flask_jwt_extended import JWTManager
+from flask_mongoengine import MongoEngine
+from flask_restful import Api
 
 # local packages
 from api.routes import create_routes
-
-# external packages
-import os
-import sys
 from models.user import Users
 
 # default mongodb configuration

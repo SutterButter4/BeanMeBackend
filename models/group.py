@@ -1,11 +1,12 @@
-from mongoengine import (Document,
-                         EmbeddedDocument,
-                         EmbeddedDocumentField,
+import mongoengine_goodjson as gj
+
+from mongoengine import (EmbeddedDocumentField,
                          ListField,
                          StringField,
                          IntField,
                          ObjectIdField)
-import mongoengine_goodjson as gj
+
+from models.user import Users
 
 
 class ScheduledTask(gj.EmbeddedDocument):
@@ -25,3 +26,11 @@ class Groups(gj.Document):
     users = ListField(EmbeddedDocumentField(GroupUser), db_field="users", required=True)
     scheduledTasks = ListField(ScheduledTask(), db_field="scheduledTasks")
 
+    # def validate(self):
+    #     badUsers = []
+    #     for user in self.users:
+    #         if len(Users.objects(id=user.userId)==0):
+    #             badUsers.append(user)
+    #     for user in badUsers:
+    #         self.update(pull__users=user)
+    #     super(Groups, self).validate()

@@ -1,26 +1,13 @@
 # mongo-engine packages
-from mongoengine import (Document,
-                         EmbeddedDocumentField,
-                         ListField,
-                         StringField,
-                         EmailField,
-                         EmbeddedDocument,
-                         ObjectIdField,
-                         DateTimeField)
-
-# flask packages
-from flask_bcrypt import generate_password_hash, check_password_hash
-import mongoengine_goodjson as gj
 import re
 
-class Notification(gj.EmbeddedDocument):
-    description = StringField()
-    type = StringField()
-    groupId = ObjectIdField()
-    taskId = ObjectIdField()
-    userId = ObjectIdField()
-    date = DateTimeField(default=datetime.utcnow)
-    viewed = BooleanField(default=false)
+from mongoengine_goodjson import Document
+# flask packages
+from flask_bcrypt import generate_password_hash, check_password_hash
+from mongoengine import (ListField,
+                         StringField,
+                         ObjectIdField)
+
 
 class PhoneField(StringField):
     """
@@ -38,13 +25,13 @@ class PhoneField(StringField):
             self.error(f"ERROR: `{value}` Is An Invalid Phone Number.")
         super(PhoneField, self).validate(value=value)
 
-class Users(gj.Document):
+class Users(Document):
 
-    name = StringField(db_field="name", required=True)
     phone = PhoneField(db_field="phone", required=True, unique=True)
+    name = StringField(required=False,default="John Doe")
     password = StringField(db_field="password", required=True, min_length=6, regex=None)
     groups = ListField(ObjectIdField(), db_field="groups")
-    notifications = ListField(EmbeddedDocumentField(Notification), db_field="notifications")
+    notificationIds = ListField(ObjectIdField(), db_field="notificationIds")
     invites = ListField(ObjectIdField(),db_field="invites")
 
     def generate_pw_hash(self):
